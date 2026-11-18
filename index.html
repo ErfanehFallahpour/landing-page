@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>آکسون — ساخت محصول دیجیتال با ایجنت‌های هوش مصنوعی</title>
+  <meta name="description" content="آکسون؛ استودیویی که با ایجنت‌های هوش مصنوعی، ایده‌ی شما را در کوتاه‌ترین زمان به سایت، اپلیکیشن و لندینگ برند تبدیل می‌کند." />
+  <meta name="theme-color" content="#05060a" />
+  <meta property="og:title" content="آکسون — تو فقط ایده‌ت رو بیار" />
+  <meta property="og:description" content="سایت، اپلیکیشن و لندینگ برند؛ سریع‌تر و دقیق‌تر، با تیمی از آدم‌ها و ایجنت‌های هوش مصنوعی." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="assets/img/mark.svg" type="image/svg+xml" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;500;700;800;900&family=Handjet:wght@400;600;800&family=Martian+Mono:wght@300;400;600&family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">رفتن به محتوای اصلی</a>
+
+  <!-- ===== Atmosphere layers (back → front) ===== -->
+  <div class="atmos" aria-hidden="true"></div>
+  <canvas id="backdrop" aria-hidden="true"></canvas>
+  <canvas id="webgl" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+  <!-- ===== Intro: loader + ignition gate ===== -->
+  <div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="ورود به سایت">
+    <div class="intro__top mono">
+      <span>AXON / SYS.BOOT</span>
+      <span id="bootLine">COMPILING CORE…</span>
+    </div>
+
+    <div class="intro__count mono" id="count" aria-hidden="true">000</div>
+
+    <div class="intro__gate" id="gate" hidden>
+      <button class="hold" id="hold" type="button" aria-describedby="holdHint">
+        <svg viewBox="0 0 140 140" aria-hidden="true">
+          <circle class="hold__track" cx="70" cy="70" r="62" />
+          <circle class="hold__bar" id="holdBar" cx="70" cy="70" r="62" />
+        </svg>
+        <span class="hold__core" aria-hidden="true"></span>
+        <span class="hold__label">
+          <span class="mono">HOLD</span>
+          <span>نگه دار</span>
+        </span>
+      </button>
+      <p class="intro__hint" id="holdHint">نگه دار تا قصه شروع بشه</p>
+      <button class="intro__skip mono" id="skip" type="button">SKIP — ورود مستقیم</button>
+    </div>
+
+    <div class="intro__bottom mono">
+      <span>BUILD 2.0.0</span>
+      <span>HUMANS + AGENTS</span>
+    </div>
+  </div>
+
+  <!-- ===== HUD ===== -->
+  <header class="hud" id="hud">
+    <a class="brand" href="#top" aria-label="آکسون — بازگشت به ابتدا">
+      <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="15" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <circle cx="20" cy="20" r="6" fill="currentColor" />
+        <circle cx="33.5" cy="12" r="2.6" fill="var(--accent)" />
+      </svg>
+      <span class="brand__name">
+        <b>آکسون</b>
+        <small class="mono">AXON STUDIO</small>
+      </span>
+    </a>
+
+  </header>
+
+  <div class="hud-bottom" aria-hidden="true">
+    <div class="chapter mono">
+      <span class="chapter__idx" id="chapterIdx">00</span>
+      <span class="chapter__name" id="chapterName">دیروز</span>
+    </div>
+    <div class="ticker mono">
+      <span>LN</span>
+      <span class="ticker__val" id="tickerVal">0000</span>
+      <span class="ticker__sep">/</span>
+      <span>9999</span>
+    </div>
+  </div>
+
+  <div class="topbar" aria-hidden="true">
+    <div class="topbar__ticks" id="topTicks"></div>
+    <div class="topbar__fill" id="topFill"></div>
+    <div class="topbar__marker mono" id="topMarker">v0.1</div>
+  </div>
+
+  <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"></span></div>
+
+  <!--
+    Each chapter drives the scene:
+      data-shape  → particle object      data-bg    → themed background
+      data-px/py  → object position (-1…1, left/bottom → right/top)
+      data-align  → text block position  data-theme → colours
+  -->
+  <main id="main">
+
+    <!-- 00 — YESTERDAY : a crowd of developers made of particles -->
+    <section class="chapter-sec hero" id="top" data-align="right" data-valign="end"
+      data-shape="crowd" data-bg="code" data-theme="ice" data-px="-0.45" data-py="0.55" data-scale="0.82" data-dim="0.85"
+      data-chapter="00|دیروز" data-version="v0.1">
+      <div class="wrap">
+        <div class="block">
+          <h1 class="hero__title" data-split="hero">یک ایده،<br />ده‌ها برنامه‌نویس،<br /><em>ماه‌ها</em> انتظار.</h1>
+          <p class="hero__sub" data-hero-fade>قصه‌ی آشنای ساختنِ نرم‌افزار — تا همین دیروز.</p>
+        </div>
+      </div>
+      <div class="scroll-cue" data-hero-fade aria-hidden="true"><span class="scroll-cue__mouse"><i></i></span><span class="scroll-cue__txt">اسکرول کن</span><span class="scroll-cue__en mono">SCROLL</span></div>
+    </section>
+
+    <!-- 01 — THE TURN : the crowd dissolves -->
+    <section class="chapter-sec manifesto" id="turn" data-align="center" data-valign="center"
+      data-shape="hourglass" data-bg="none" data-theme="violet" data-dim="0.58" data-scale="0.8"
+      data-chapter="01|ورق برگشت" data-version="v0.2">
+      <div class="wrap">
+        <p class="manifesto__text" data-scrub-words>
+          اون دوران <br /> <em>ورق خورد.</em>
+        </p>
+      </div>
+    </section>
+
+    <!-- 02 — TODAY : AI agents -->
+    <section class="chapter-sec story" id="agents" data-align="left" data-valign="center"
+      data-shape="bot" data-bg="network" data-theme="mint" data-px="0.95" data-py="0.05"
+      data-chapter="02|امروز" data-version="v0.3">
+      <div class="wrap">
+        <div class="block">
+          <h2 class="story__title" data-split>ایجنت‌های <span class="hand">هوش مصنوعی</span><br />وارد تیم شدن.</h2>
+          <p class="story__line" data-side>سریع‌تر می‌سازن، دقیق‌تر چک می‌کنن، و هیچ‌وقت خسته نمی‌شن.</p>
+          <ul class="log mono" data-side aria-label="گزارش کار ایجنت‌ها">
+            <li><b>✓</b> agent.ui <span>interface ready</span></li>
+            <li><b>✓</b> agent.api <span>endpoints live</span></li>
+            <li><b>✓</b> agent.qa <span>312 tests passed</span></li>
+            <li class="is-run"><b>●</b> agent.ship <span>deploying…</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 — VELOCITY -->
+    <section class="chapter-sec story" id="speed" data-align="right" data-valign="end"
+      data-shape="zap" data-bg="warp" data-theme="cyan" data-px="-0.95" data-py="0.15"
+      data-chapter="03|سرعت" data-version="v0.4">
+      <div class="wrap">
+        <div class="block">
+          <h2 class="story__title" data-split>زمان کمتر،<br /><em>نتیجه‌ی بهتر.</em></h2>
+          <p class="story__line" data-side>چیزی که قبلاً فصل‌ها طول می‌کشید، حالا در چند هفته به دستت می‌رسه.</p>
+          <p class="swap" data-side><s>ماه‌ها</s><i aria-hidden="true">←</i><b class="hand">هفته‌ها</b></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 — IDEA -->
+    <section class="chapter-sec story" id="idea" data-align="center" data-valign="end"
+      data-shape="bulb" data-bg="blueprint" data-theme="violet" data-py="0.95" data-scale="0.46"
+      data-chapter="04|ایده" data-version="v0.5">
+      <div class="wrap">
+        <div class="block">
+          <h2 class="story__title" data-split>هر جرقه‌ای که به ذهنت بزنه،<br />می‌تونه یه <span class="hand rotator" id="rotator" data-nosplit aria-live="polite">سایت</span> بشه.</h2>
+          <p class="story__line" data-side>تو تصورش کن؛ ساختنش با ما.</p>
+          <p class="next mono" data-side>چند تا از ساخته‌هامون ↓</p>
+        </div>
+      </div>
+    </section>
+
+    <div id="products" class="hscroll" aria-label="ساخته‌های ما">
+      <div class="hscroll__track" id="hTrack">
+      <!-- P1 — Crypto exchange : text left, coin right, candles behind -->
+      <section class="chapter-sec product" id="p-exchange" data-align="left" data-valign="end"
+        data-shape="bitcoin" data-px="0.95" data-py="0.15" data-bg="candles" data-theme="mint"
+        data-chapter="05.1|صرافی ارز دیجیتال" data-version="v0.6">
+        <span class="product__num mono" aria-hidden="true">01</span>
+        <div class="wrap">
+          <div class="block">
+            <h2 class="product__title" data-split>صرافی ارز دیجیتال</h2>
+            <p class="product__line" data-side>معامله در کسری از ثانیه، با امنیتی در حدِ بانک.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- P2 — Marketplace : text right-top, cart left, product wall behind -->
+      <section class="chapter-sec product" id="p-market" data-align="right" data-valign="end"
+        data-shape="cart" data-px="-0.95" data-py="0.1" data-bg="store" data-theme="violet"
+        data-chapter="05.2|مارکت‌پلیس" data-version="v0.7">
+        <span class="product__num mono" aria-hidden="true">02</span>
+        <div class="wrap">
+          <div class="block">
+            <h2 class="product__title" data-split>مارکت‌پلیس</h2>
+            <p class="product__line" data-side>هزاران غرفه، یک بازارِ یکپارچه.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- P3 — Gold market : text left, coins right, gold curve behind -->
+      <section class="chapter-sec product" id="p-gold" data-align="left" data-valign="center"
+        data-shape="ingots" data-px="0.95" data-py="0.05" data-scale="0.92" data-bg="gold" data-theme="gold"
+        data-chapter="05.3|بازار طلا" data-version="v0.8">
+        <span class="product__num mono" aria-hidden="true">03</span>
+        <div class="wrap">
+          <div class="block">
+            <h2 class="product__title" data-split>بازار طلا</h2>
+            <p class="product__line" data-side>طلای واقعی، با قیمتِ همین لحظه.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- P4 — Legal : text right, scales left, contracts behind -->
+      <section class="chapter-sec product" id="p-legal" data-align="right" data-valign="end"
+        data-shape="scales" data-px="-0.95" data-py="0.15" data-bg="legal" data-theme="ice"
+        data-chapter="05.4|وکیل آنلاین" data-version="v0.9">
+        <span class="product__num mono" aria-hidden="true">04</span>
+        <div class="wrap">
+          <div class="block">
+            <h2 class="product__title" data-split>وکیل آنلاین</h2>
+            <p class="product__line" data-side>مشاوره‌ی حقوقی، فقط یک پیام فاصله.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- P5 — Online store : text bottom-centre, bag top, floating goods behind -->
+      <section class="chapter-sec product" id="p-shop" data-align="center" data-valign="end"
+        data-shape="bag" data-py="0.78" data-scale="0.68" data-bg="shop" data-theme="cyan"
+        data-chapter="05.5|فروشگاه آنلاین" data-version="v1.0">
+        <span class="product__num mono" aria-hidden="true">05</span>
+        <div class="wrap">
+          <div class="block">
+            <h2 class="product__title" data-split>فروشگاه آنلاین</h2>
+            <p class="product__line" data-side>از اولین کلیک تا زنگِ درِ خونه.</p>
+          </div>
+        </div>
+      </section>
+      </div>
+    </div>
+
+    <!-- 06 — YOUR BRAND : a landing page drawn in particles -->
+    <section class="chapter-sec story" id="landing" data-align="left" data-valign="center"
+      data-shape="landing" data-bg="grid" data-theme="lime" data-px="0.95"
+      data-chapter="06|برند تو" data-version="v1.1">
+      <div class="wrap">
+        <div class="block">
+          <h2 class="story__title" data-split>برندت،<br /><em>ویترینی</em> که دیده می‌شه.</h2>
+          <p class="story__line" data-side>لندینگی که اولین نگاه رو به اولین مشتری تبدیل می‌کنه.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 — PUNCHLINE -->
+    <section class="chapter-sec manifesto" id="punch" data-align="center" data-valign="center"
+      data-shape="orbits" data-bg="none" data-theme="violet" data-dim="0.5"
+      data-chapter="07|اهلش" data-version="v1.2">
+      <div class="wrap">
+        <p class="manifesto__text manifesto__text--sm" data-scrub-words>
+          تو فقط ایده‌ت رو بیار؛ <br /> ساختنش رو بسپار به <em>اهلش</em> <span class="wink" data-nosplit>😉</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- 08 — CONTACT : tunnel behind -->
+    <section class="chapter-sec cta" id="contact" data-align="center" data-valign="center"
+      data-shape="ring" data-bg="tunnel" data-theme="mint"
+      data-chapter="08|شروع" data-version="v2.0">
+      <div class="wrap cta__wrap">
+        <h2 class="cta__title" data-split>قصه‌ی بعدی،<br /><em>مالِ توئه.</em></h2>
+        <p class="cta__sub" data-fade>از هر راهی که راحت‌تری، پیام بده.</p>
+
+        <!-- اطلاعات تماس واقعی را این‌جا جایگزین کنید -->
+        <ul class="contacts">
+          <li data-fade><a class="contact" href="https://t.me/axon_studio" target="_blank" rel="noopener" data-magnetic style="--c:#2aabee">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            <b>تلگرام</b><span class="mono">@axon_studio</span></a></li>
+          <li data-fade><a class="contact" href="https://wa.me/989120000000" target="_blank" rel="noopener" data-magnetic style="--c:#25d366">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+            <b>واتس‌اپ</b><span class="mono">+98 912 000 0000</span></a></li>
+          <li data-fade><a class="contact" href="mailto:hello@axon.studio" data-magnetic style="--c:#ff7ad9">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <b>ایمیل</b><span class="mono">hello@axon.studio</span></a></li>
+          <li data-fade><a class="contact" href="tel:+982100000000" data-magnetic style="--c:#c8ff3d">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.1 9.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <b>تماس</b><span class="mono">021 0000 0000</span></a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__wrap">
+      <span>© ۱۴۰۵ آکسون — ساخته‌شده با آدم‌ها و ایجنت‌ها</span>
+      <nav aria-label="شبکه‌های اجتماعی">
+        <a href="https://t.me/axon_studio" class="mono">TELEGRAM</a>
+        <a href="https://wa.me/989120000000" class="mono">WHATSAPP</a>
+        <a href="#" class="mono">INSTAGRAM</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script type="module" src="assets/js/main.js"></script>
+</body>
+</html>
